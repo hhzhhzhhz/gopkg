@@ -13,6 +13,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"time"
 )
 
 var configPath string
@@ -107,6 +108,59 @@ func deepSearch(m map[string]interface{}, path []string) map[string]interface{} 
 // Get ...
 func (c *Config) Get(key string) interface{} {
 	return c.find(key)
+}
+
+
+// GetString returns the value associated with the key as a string.
+func (c *Config) GetString(key string) string {
+	return xcast.ToString(c.Get(key))
+}
+
+// GetBool returns the value associated with the key as a boolean.
+func (c *Config) GetBool(key string) bool {
+	return xcast.ToBool(c.Get(key))
+}
+
+func (c *Config) GetInt(key string) int {
+	return xcast.ToInt(c.Get(key))
+}
+
+// GetInt64 returns the value associated with the key as an integer.
+func (c *Config) GetInt64(key string) int64 {
+	return xcast.ToInt64(c.Get(key))
+}
+
+func (c *Config) GetFloat64(key string) float64 {
+	return xcast.ToFloat64(c.Get(key))
+}
+
+// GetTime returns the value associated with the key as time.
+func (c *Config) GetTime(key string) time.Time {
+	return xcast.ToTime(c.Get(key))
+}
+
+// GetDuration returns the value associated with the key as a duration.
+func (c *Config) GetDuration(key string) time.Duration {
+	return xcast.ToDuration(c.Get(key))
+}
+
+// GetStringSlice returns the value associated with the key as a slice of strings.
+func (c *Config) GetStringSlice(key string) []string {
+	return xcast.ToStringSlice(c.Get(key))
+}
+
+// GetInt64Slice returns the value associated with the key as a slice of int64s.
+func (c *Config) GetInt64Slice(key string) []int64 {
+	return xcast.ToInt64Slice(c.Get(key))
+}
+
+// GetStringMapString returns the value associated with the key as a map of strings.
+func (c *Config) GetStringMapString(key string) map[string]string {
+	return xcast.ToStringMapString(c.Get(key))
+}
+
+func (c *Config) GetStringMapStringSlice(key string) map[string][]string {
+	return xcast.ToStringMapStringSlice(c.Get(key))
 }
 
 func (c *Config) find(key string) interface{} {
