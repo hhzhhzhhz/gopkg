@@ -22,11 +22,11 @@ func init() {
 	flag.StringVar(&configPath, "config", utils.Env("CONFIG", "./config.toml"), "config path eg: ./config.toml")
 	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		log.Fatalf("load config from datasource[%s] failed: %v", configPath, err)
+		log.Printf("load config from datasource[%s] failed: %v", configPath, err)
 		return
 	}
 	if err := LoadFromDataSource(b, toml.Unmarshal); err != nil {
-		log.Fatalf("load config from datasource[%s] failed: %v", configPath, err)
+		log.Printf("load config from datasource[%s] failed: %v", configPath, err)
 	}
 }
 
