@@ -1,35 +1,169 @@
 package log
 
 import (
-	"github.com/hhzhhzhhz/logs-go"
+	"fmt"
+	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
+	"log"
 	"os"
-	"sync"
 )
 
-var (
-	onceJ   sync.Once
-	stdLogJ logs_go.LogJ
-	stdLogF logs_go.Logf
+// Level log level
+type Level int32
+
+// Logger level
+const (
+	LvlDebug Level = iota
+	LvlInfo
+	LvlWarn
+	LvlError
+	LvlFatal
 )
 
-func SetLogger(log logs_go.Logf) {
-	stdLogF = log
+func Logger() *logger {
+	return stdLogger
 }
 
-func Logger() logs_go.Logf {
-	if stdLogF != nil {
-		return stdLogF
+// Logger stores a logger
+type logger struct {
+	log.Logger
+	level Level
+}
+
+var stdLogger = New(os.Stdout)
+
+// SetOutput sets the writer of standard logger
+func SetOutput(w io.Writer) {
+	stdLogger.SetOutput(w)
+}
+
+// SetLevel set log level
+func SetLevel(l Level) {
+	stdLogger.SetLevel(l)
+}
+
+// GetLevel returns current log level
+func GetLevel() Level {
+	return stdLogger.Level()
+}
+
+func Fatal(format string, v ...interface{}) {
+	stdLogger.Output(2, fmt.Sprintf("[FATAL] "+format+"\n", v...))
+	os.Exit(1)
+}
+
+func Error(format string, v ...interface{}) {
+	if stdLogger.Level() <= LvlError {
+		stdLogger.Output(2, fmt.Sprintf("[ERROR] "+format+"\n", v...))
 	}
-	return logs_go.DefalutLogf()
 }
 
-func LoggerJ() logs_go.LogJ {
-	onceJ.Do(func() {
-		hostname, _ := os.Hostname()
-		cfg := logs_go.NewLogJconfig()
-		cfg.Stdout = true
-		cfg.InitialFields = map[string]interface{}{"hostname": hostname}
-		stdLogJ, _ = cfg.BuildLogJ()
-	})
-	return stdLogJ
+func Warn(format string, v ...interface{}) {
+	if stdLogger.Level() <= LvlWarn {
+		stdLogger.Output(2, fmt.Sprintf("[WARN] "+format+"\n", v...))
+	}
+}
+
+func Info(format string, v ...interface{}) {
+	if stdLogger.Level() <= LvlInfo {
+		stdLogger.Output(2, fmt.Sprintf("[INFO] "+format+"\n", v...))
+	}
+}
+
+func Debug(format string, v ...interface{}) {
+	if stdLogger.Level() <= LvlDebug {
+		stdLogger.Output(3, fmt.Sprintf("[DEBUG] "+format+"\n", v...))
+	}
+}
+
+// New creates a instance of Logger
+func New(w io.Writer) *logger {
+	l := &logger{level: LvlInfo}
+	l.SetOutput(w)
+	l.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
+
+	return l
+}
+
+func (l *logger) Debug(format string, v ...interface{}) {
+	if l.level <= LvlDebug {
+		l.Output(2, fmt.Sprintf("[DEBUG] "+format+"\n", v...))
+	}
+}
+
+func (l *logger) Info(format string, v ...interface{}) {
+	if l.level <= LvlInfo {
+		l.Output(2, fmt.Sprintf("[INFO] "+format+"\n", v...))
+	}
+}
+
+func (l *logger) Warn(format string, v ...interface{}) {
+	if l.level <= LvlWarn {
+		l.Output(2, fmt.Sprintf("[WARN] "+format+"\n", v...))
+	}
+}
+
+func (l *logger) Error(format string, v ...interface{}) {
+	if l.level <= LvlError {
+		l.Output(2, fmt.Sprintf("[ERROR] "+format+"\n", v...))
+	}
+}
+
+func (l *logger) Close() error {
+	return nil
+}
+
+func (l *logger) Fatal(format string, v ...interface{}) {
+	l.Output(2, fmt.Sprintf("[FATAL] "+format+"\n", v...))
+	os.Exit(1)
+}
+
+// Level returns current logger level
+func (l *logger) Level() Level {
+	return l.level
+}
+
+// SetLevel sets the logger level
+func (l *logger) SetLevel(level Level) {
+	l.level = level
+}
+
+// InitLumberjack info、debug、warn、error
+func InitLumberjack(level, fileName string) {
+	if fileName == "" {
+		fileName = "lumberjack"
+	}
+	writer := &lumberjack.Logger{
+		Filename:   fileName,
+		MaxSize:    100,
+		MaxBackups: 1,
+		MaxAge:     10,
+	}
+	stdLogger.SetOutput(writer)
+	stdLogger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
+	switch level {
+	case "debug", "DEBUG":
+		stdLogger.SetLevel(LvlDebug)
+	case "warn", "WARN":
+		stdLogger.SetLevel(LvlWarn)
+	case "error", "ERROR":
+		stdLogger.SetLevel(LvlError)
+	default:
+		stdLogger.SetLevel(LvlInfo)
+	}
+}
+
+func InitLog(level string, writer io.Writer) {
+	stdLogger.SetOutput(writer)
+	stdLogger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
+	switch level {
+	case "debug", "DEBUG":
+		stdLogger.SetLevel(LvlDebug)
+	case "warn", "WARN":
+		stdLogger.SetLevel(LvlWarn)
+	case "error", "ERROR":
+		stdLogger.SetLevel(LvlError)
+	default:
+		stdLogger.SetLevel(LvlInfo)
+	}
 }

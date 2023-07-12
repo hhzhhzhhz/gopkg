@@ -8,7 +8,6 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/google/uuid v1.3.0
-	github.com/hhzhhzhhz/logs-go v0.1.3
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/mitchellh/mapstructure v1.1.2
@@ -23,6 +22,7 @@ require (
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.41.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.2
 	k8s.io/apimachinery v0.26.0

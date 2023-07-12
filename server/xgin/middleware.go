@@ -81,39 +81,39 @@ func RecordFormat(next gin.HandlerFunc) gin.HandlerFunc {
 	}
 }
 
-func RecordJson(next gin.HandlerFunc) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set(RequestTime, time.Now())
-		defer func() {
-			var panic string
-			if err := recover(); err != nil {
-				buf := make([]byte, 4096)
-				n := runtime.Stack(buf, false)
-				panic = fmt.Sprintf("panic Error: %v;stack: %s", err, buf[:n])
-				ResponseNo(c, ErrorUnknown)
-			}
-
-			var zf []zap.Field
-			zf = append(zf,
-				zap.String("ip", c.RemoteIP()),
-				zap.String("uri", c.Request.RequestURI),
-				zap.Int64("rt", time.Since(c.MustGet(RequestTime).(time.Time)).Milliseconds()),
-			)
-			v, ok := c.Get(LoggerInfo)
-			if ok {
-				fs, ok := v.([]zap.Field)
-				if ok && len(fs) != 0 {
-					zf = append(zf, fs...)
-				}
-			}
-			_, e := c.Get(ErrorResponse)
-			if panic != "" || e {
-				zf = append(zf, zap.String("panic", panic))
-				log.LoggerJ().Error("request received", zf...)
-				return
-			}
-			log.LoggerJ().Info("request received", zf...)
-		}()
-		next(c)
-	}
-}
+//func RecordJson(next gin.HandlerFunc) gin.HandlerFunc {
+//	return func(c *gin.Context) {
+//		c.Set(RequestTime, time.Now())
+//		defer func() {
+//			var panic string
+//			if err := recover(); err != nil {
+//				buf := make([]byte, 4096)
+//				n := runtime.Stack(buf, false)
+//				panic = fmt.Sprintf("panic Error: %v;stack: %s", err, buf[:n])
+//				ResponseNo(c, ErrorUnknown)
+//			}
+//
+//			var zf []zap.Field
+//			zf = append(zf,
+//				zap.String("ip", c.RemoteIP()),
+//				zap.String("uri", c.Request.RequestURI),
+//				zap.Int64("rt", time.Since(c.MustGet(RequestTime).(time.Time)).Milliseconds()),
+//			)
+//			v, ok := c.Get(LoggerInfo)
+//			if ok {
+//				fs, ok := v.([]zap.Field)
+//				if ok && len(fs) != 0 {
+//					zf = append(zf, fs...)
+//				}
+//			}
+//			_, e := c.Get(ErrorResponse)
+//			if panic != "" || e {
+//				zf = append(zf, zap.String("panic", panic))
+//				log.LoggerJ().Error("request received", zf...)
+//				return
+//			}
+//			log.LoggerJ().Info("request received", zf...)
+//		}()
+//		next(c)
+//	}
+//}
