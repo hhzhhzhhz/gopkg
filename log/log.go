@@ -20,7 +20,17 @@ const (
 	LvlFatal
 )
 
-func Logger() *logger {
+type Log interface {
+	Info(format string, v ...interface{})
+	Debug(format string, v ...interface{})
+	Warn(format string, v ...interface{})
+	Error(format string, v ...interface{})
+	Fatal(format string, v ...interface{})
+	Level() Level
+	Close() error
+}
+
+func Logger() Log {
 	return stdLogger
 }
 
@@ -109,13 +119,13 @@ func (l *logger) Error(format string, v ...interface{}) {
 	}
 }
 
-func (l *logger) Close() error {
-	return nil
-}
-
 func (l *logger) Fatal(format string, v ...interface{}) {
 	l.Output(2, fmt.Sprintf("[FATAL] "+format+"\n", v...))
 	os.Exit(1)
+}
+
+func (l *logger) Close() error {
+	return nil
 }
 
 // Level returns current logger level
