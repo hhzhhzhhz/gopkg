@@ -23,13 +23,13 @@ const (
 func Command(c string, timeout time.Duration, args ...string) (string, error) {
 	ctx, _ := context.WithTimeout(context.Background(), timeout)
 	// c := exec.CommandContext(ctx, exe, "/c", cmd)
-	c := exec.CommandContext(ctx, c, args)
-	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	cmd := exec.CommandContext(ctx, c, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	var out bytes.Buffer
-	c.Stdout = &out
-	c.Stderr = &out
+	cmd.Stdout = &out
+	cmd.Stderr = &out
 
-	if err := c.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return string(out.Bytes()), err
 	}
 	return string(out.Bytes()), nil
