@@ -34,3 +34,12 @@ func Command(c string, timeout time.Duration, args ...string) (string, error) {
 	}
 	return string(out.Bytes()), nil
 }
+
+
+func Exec(c string, args ...string) (*exec.Cmd, error) {
+	cmd := exec.Command(c, args...)
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+	return cmd, nil
+}
