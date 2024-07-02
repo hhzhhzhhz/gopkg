@@ -18,7 +18,7 @@ import (
 
 var configPath string
 
-func init() {
+func Init() {
 	flag.StringVar(&configPath, "config", utils.Env("CONFIG", "./config.toml"), "config path eg: ./config.toml")
 	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
